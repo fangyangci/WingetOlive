@@ -3,7 +3,11 @@ using System.Diagnostics;
 
 class Program
 {
+    const string AppName = "OliveEnv";
     static string projPath = "";
+    static string localAppPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), AppName);
+    static string programAppPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Programs), AppName);
+
     static void Main(string[] args)
     {
         if (args.Length < 2)
@@ -26,24 +30,27 @@ class Program
     static void Uninstall()
     {
         Console.WriteLine("Python Environment Deleting...");
+        RemoveFromEnvPath(Path.Combine(projPath, "OliveScripts"));
+
         foreach (var subDir in Directory.GetDirectories(projPath))
         {
             Directory.Delete(subDir, true);
         }
-        RemoveFromPath(Path.Combine(projPath, "OliveScripts"));
-
-        Directory.Delete(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Programs), "OliveEnv"), true);
+        Directory.Delete(programAppPath, true);
+        Directory.Delete(localAppPath, true);
     }
 
     static void Install()
     {
         Console.WriteLine("Python Environment Installing...");
-        Console.WriteLine($"Installing Path: {projPath}");
+        Console.WriteLine($"Installing Path: {localAppPath}");
+        Directory.CreateDirectory(localAppPath);
 
         ProcessStartInfo startInfo = new ProcessStartInfo();
         startInfo.FileName = "install.bat";
         // 设置工作目录，即指定在该目录下启动进程
         startInfo.WorkingDirectory = projPath;
+        startInfo.ArgumentList.Add(Path.Combine(localAppPath, "Olive"));
         try
         {
             // 使用Process.Start方法启动进程
@@ -69,15 +76,15 @@ class Program
 
     static void CreateStartMenu()
     {
-        string startMenuFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Programs), "OliveEnv");
-        Directory.CreateDirectory(startMenuFolder);
-        string shortcutPath = Path.Combine(startMenuFolder, "Olive Prompt.lnk");
+        Console.WriteLine($"StartMenu Path: {programAppPath}");
+        Directory.CreateDirectory(programAppPath);
+        string shortcutPath = Path.Combine(programAppPath, "Olive Prompt.lnk");
 
         WshShell shell = new WshShell();
         IWshShortcut shortcut = (IWshShortcut)shell.CreateShortcut(shortcutPath);
 
         var cmdPath = Environment.ExpandEnvironmentVariables(@"%WINDIR%\System32\cmd.exe");
-        var activatePath = Path.Combine(projPath, "Olive", "Scripts", "activate.bat");
+        var activatePath = Path.Combine(localAppPath, "Olive", "Scripts", "activate.bat");
         var arguments = $@"/K ""{activatePath}""";
 
         shortcut.TargetPath = cmdPath;
@@ -94,10 +101,10 @@ class Program
         Directory.CreateDirectory(olScripts);
 
         System.IO.File.Copy(activatePath, $@"{olScripts}\olivecli.bat", true);
-        AddToPath(olScripts);
+        AddToEnvPath(olScripts);
     }
 
-    static void AddToPath(string addPath)
+    static void AddToEnvPath(string addPath)
     {
         var pathKey = "Path";
         var pathStr = Environment.GetEnvironmentVariable(pathKey, EnvironmentVariableTarget.Machine) ?? string.Empty;
@@ -109,7 +116,7 @@ class Program
         }
     }
 
-    static void RemoveFromPath(string remPath)
+    static void RemoveFromEnvPath(string remPath)
     {
         var pathKey = "Path";
         var pathStr = Environment.GetEnvironmentVariable(pathKey, EnvironmentVariableTarget.Machine) ?? string.Empty;

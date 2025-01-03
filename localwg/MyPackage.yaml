@@ -3,5 +3,5 @@ PackageVersion: 1.0.0
 Installers:
   - Arch: x64
     Url: https://cfyserver.bj.bcebos.com/olivemsi/OLSetup.msi
-    Sha256: 085004249ea690bc8601f2330231d64e39698509fe787651a969fda4689e4dbe
+    Sha256: adc9223c93444a4cb3b8011f13fdfd71718cdab82daebf5e2d45127dec76c26c
     InstallerType: msi
