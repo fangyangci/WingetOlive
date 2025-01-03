@@ -2,6 +2,6 @@ PackageIdentifier: OLiveCli
 PackageVersion: 1.0.0
 Installers:
   - Arch: x64
-    Url: https://cfyserver.bj.bcebos.com/olivemsi/OLSetup.msi
+    Url: https://github.com/fangyangci/WingetOlive/releases/download/v1/OLSetup.msi
     Sha256: adc9223c93444a4cb3b8011f13fdfd71718cdab82daebf5e2d45127dec76c26c
     InstallerType: msi
